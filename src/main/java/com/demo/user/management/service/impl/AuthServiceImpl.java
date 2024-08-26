@@ -1,14 +1,14 @@
 package com.demo.user.management.service.impl;
 
-import com.demo.user.management.dto.JwtResponse;
-import com.demo.user.management.dto.RefreshTokenRequest;
-import com.demo.user.management.dto.SignInRequest;
-import com.demo.user.management.dto.SignUpRequest;
-import com.demo.user.management.entity.Role;
-import com.demo.user.management.entity.User;
+import com.demo.user.management.dto.*;
+import com.demo.user.management.entity.*;
+import com.demo.user.management.mapper.UserMapper;
 import com.demo.user.management.repo.UserRepository;
+import com.demo.user.management.service.AuditService;
 import com.demo.user.management.service.AuthService;
 import com.demo.user.management.service.JwtService;
+import com.demo.user.management.service.ObjectMapperUtil;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,8 +34,11 @@ public class AuthServiceImpl implements AuthService {
 
     private final JwtService jwtService;
 
-    public User signUp(SignUpRequest signUpRequest) {
-        log.info("AuthServiceImpl signUp");
+    private final UserMapper userMapper;
+
+    private final AuditService auditService;
+
+    public UserDto signUp(SignUpRequest signUpRequest) {
         Boolean usernameExists = userRepository.existsByUsername(signUpRequest.getUsername());
         if (usernameExists) {
             String error = String.format("Username : %s exits.", signUpRequest.getUsername());
@@ -52,14 +55,18 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(signUpRequest.getEmail());
         user.setRole(Role.USER);
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+        user.setStatus(UserStatus.PENDING);
         user.setCreatedTime(ZonedDateTime.now());
-        return userRepository.save(user);
+        user.setLastModifiedTime(ZonedDateTime.now());
+        user.setLastModifiedBy(signUpRequest.getUsername());
+        User savedUser = userRepository.save(user);
+        auditService.audit(new Audit(AuditType.CREATE, savedUser.getId(), null, ObjectMapperUtil.toJsonString(savedUser)));
+        return userMapper.userToUserDTO(user);
     }
 
 
     @Override
     public JwtResponse signIn(SignInRequest signInRequest) {
-        log.info("AuthServiceImpl signIn");
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(signInRequest.getUsername(), signInRequest.getPassword()));
 
@@ -80,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
             var jwt = jwtService.generateToken(user);
             return new JwtResponse(jwt, refreshTokenRequest.getToken());
         }
-        throw new IllegalArgumentException("Invalid token");
+        throw new JwtException("Invalid token");
     }
 
 }

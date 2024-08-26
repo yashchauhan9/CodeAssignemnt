@@ -1,12 +1,11 @@
 package com.demo.user.management.controller;
 
-import com.demo.user.management.entity.User;
+import com.demo.user.management.dto.UpdateUserRequest;
+import com.demo.user.management.dto.UserDto;
 import com.demo.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,13 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
-    @GetMapping("/ping")
-    public String ping(){
-        return "user-pong";
+    @GetMapping("/profile")
+    public UserDto getUser() {
+        return userService.getUser();
     }
 
-    @GetMapping("/profile")
-    public User getUser() {
-        return userService.getUser();
+    @PutMapping("/update")
+    public ResponseEntity<UserDto> updateUser(@RequestBody UpdateUserRequest request) {
+        return ResponseEntity.ok(userService.updateByUser(request));
     }
 }

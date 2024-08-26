@@ -8,6 +8,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -20,26 +21,30 @@ import java.util.function.Function;
 @Slf4j
 public class JwtServiceImpl implements JwtService {
 
-    private final long expiration = 1000 * 60 * 2;
-    private final String secretKey = "BXotl5CPmvldzUUt6nph3Ub/chBxeLWP2ueJ8Ujfjus=";
+    @Value("${jwt.expirationInMinutes}")
+    private int expirationInMinutes;
+    @Value("${jwt.secretKey}")
+    private String secretKey;
 
     @Override
     public String generateToken(UserDetails userDetails) {
-        log.info("generateToken");
         return Jwts.builder().setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(new Date(System.currentTimeMillis() + getExpirationInMs()))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
 
     }
 
+    private long getExpirationInMs() {
+        return (long) expirationInMinutes * 60 * 1000;
+    }
+
     @Override
     public String generateRefreshToken(Map<String, Object> claims, UserDetails userDetails) {
-        log.info("generateRefreshToken");
         return Jwts.builder().setClaims(claims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration * 2))
+                .setExpiration(new Date(System.currentTimeMillis() + getExpirationInMs() + getExpirationInMs()))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
 
@@ -52,24 +57,20 @@ public class JwtServiceImpl implements JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        log.info("isTokenValid >> {}", token);
         final String username = extractUserName(token);
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {
-        log.info("isTokenExpired >> {}", token);
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsTFunction) {
         final Claims claims = extractAllClaims(token);
-        log.info("claims >> {}", claims);
         return claimsTFunction.apply(claims);
     }
 
     private Claims extractAllClaims(String token) {
-        log.info("token >> {}", token);
         return Jwts.parserBuilder()
                 .setSigningKey(getSignKey())
                 .build()

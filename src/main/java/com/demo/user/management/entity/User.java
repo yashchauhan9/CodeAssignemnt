@@ -1,5 +1,6 @@
 package com.demo.user.management.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -34,45 +35,54 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String email;
 
+    @NotEmpty
+    @JsonIgnore
     private String password;
 
     private ZonedDateTime createdTime;
 
+    private ZonedDateTime lastModifiedTime;
 
-   /* @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();*/
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Entitlement entitlement;
 
+    @Enumerated(EnumType.STRING)
     private Role role;
 
-    //private Long createdBy; // ID of the admin who created the user
+    private String lastModifiedBy;
 
-    //private boolean isApproved = false; // To handle maker-checker
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
+    private String details;
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isEnabled() {
-        return true;
+        return status != UserStatus.DELETED;
     }
 }

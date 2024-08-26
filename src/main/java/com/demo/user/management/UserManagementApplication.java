@@ -1,7 +1,9 @@
 package com.demo.user.management;
 
+import com.demo.user.management.entity.Entitlement;
 import com.demo.user.management.entity.Role;
 import com.demo.user.management.entity.User;
+import com.demo.user.management.entity.UserStatus;
 import com.demo.user.management.repo.UserRepository;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Encoders;
@@ -30,10 +32,9 @@ public class UserManagementApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
-
-//			SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-//			String base64EncodedKey = Encoders.BASE64.encode(key.getEncoded());
-//			System.out.println("Base64 Encoded Secret Key: " + base64EncodedKey);
+		/*SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+		String base64EncodedKey = Encoders.BASE64.encode(key.getEncoded());
+		System.out.println("Base64 Encoded Secret Key: " + base64EncodedKey);*/
 
 		Optional<User> adminUser = userRepository.findByRole(Role.ADMIN);
 		if (adminUser.isEmpty()) {
@@ -44,6 +45,10 @@ public class UserManagementApplication implements CommandLineRunner {
 			user.setUsername("admin123");
 			user.setPassword(new BCryptPasswordEncoder().encode("admin"));
 			user.setCreatedTime(ZonedDateTime.now());
+			user.setLastModifiedTime(ZonedDateTime.now());
+			user.setStatus(UserStatus.APPROVED);
+			user.setLastModifiedBy(user.getUsername());
+			user.setDetails("created by cmd line");
 			userRepository.save(user);
 		}
 

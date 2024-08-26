@@ -4,7 +4,7 @@ import com.demo.user.management.dto.JwtResponse;
 import com.demo.user.management.dto.RefreshTokenRequest;
 import com.demo.user.management.dto.SignInRequest;
 import com.demo.user.management.dto.SignUpRequest;
-import com.demo.user.management.entity.User;
+import com.demo.user.management.dto.UserDto;
 import com.demo.user.management.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<User> singUp(@RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<UserDto> singUp(@RequestBody SignUpRequest signUpRequest) {
         return ResponseEntity.ok(authService.signUp(signUpRequest));
     }
 
