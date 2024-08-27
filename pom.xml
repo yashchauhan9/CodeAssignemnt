@@ -122,6 +122,14 @@
 			<version>1.6.15</version>
 		</dependency>
 
+		<!-- Add this dependency to your pom.xml -->
+		<!--<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-inline</artifactId>
+			<version>5.5.0</version>
+			<scope>test</scope>
+		</dependency>-->
+
 	</dependencies>
 
 	<build>

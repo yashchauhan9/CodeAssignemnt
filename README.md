@@ -8,6 +8,8 @@
 
 - JWT Auth with token and ROLE based
 
+![img.png](img.png)
+
 Admin login details (user added when boot up)
 - username: admin123 
 - password: admin

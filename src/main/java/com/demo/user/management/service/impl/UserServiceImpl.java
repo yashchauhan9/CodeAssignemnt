@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAllUsers() {
-        return userMapper.userToUserDTO(userRepository.findAll());
+        return userMapper.userToUserDTOList(userRepository.findAll());
     }
 
     @Override
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getUsersWithStatus(UserStatus status) {
-        return userMapper.userToUserDTO(userRepository.findByStatus(status));
+        return userMapper.userToUserDTOList(userRepository.findByStatus(status));
     }
 
     @Override
