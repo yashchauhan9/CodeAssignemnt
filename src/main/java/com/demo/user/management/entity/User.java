@@ -43,11 +43,11 @@ public class User implements UserDetails {
 
     private ZonedDateTime lastModifiedTime;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Entitlement entitlement;
-
+    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    private Role role;
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role")
+    private List<Role> roles;
 
     private String lastModifiedBy;
 
@@ -59,7 +59,7 @@ public class User implements UserDetails {
     @Override
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return roles.stream().map(r -> new SimpleGrantedAuthority(r.name())).collect(Collectors.toList());
     }
 
     @Override

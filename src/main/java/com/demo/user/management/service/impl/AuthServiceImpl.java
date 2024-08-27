@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.security.InvalidParameterException;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -53,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
         user.setUsername(signUpRequest.getUsername());
         user.setName(signUpRequest.getName());
         user.setEmail(signUpRequest.getEmail());
-        user.setRole(Role.USER);
+        user.setRoles(List.of(Role.USER));
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setStatus(UserStatus.PENDING);
         user.setCreatedTime(ZonedDateTime.now());

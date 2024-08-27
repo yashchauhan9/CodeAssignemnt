@@ -2,7 +2,7 @@ package com.demo.user.management.service;
 
 import com.demo.user.management.dto.UpdateUserRequest;
 import com.demo.user.management.dto.UserDto;
-import com.demo.user.management.entity.User;
+import com.demo.user.management.dto.RoleRequest;
 import com.demo.user.management.entity.UserStatus;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -22,4 +22,6 @@ public interface UserService {
     void deleteUser(Long id);
 
     UserDto updateByUser(UpdateUserRequest request);
+
+    UserDto assignRole(RoleRequest roleRequest);
 }

@@ -1,11 +1,11 @@
 package com.demo.user.management.dto;
 
-import com.demo.user.management.entity.Entitlement;
 import com.demo.user.management.entity.Role;
 import com.demo.user.management.entity.UserStatus;
 import lombok.Data;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Data
 public class UserDto {
@@ -16,8 +16,7 @@ public class UserDto {
     private String email;
     private ZonedDateTime createdTime;
     private ZonedDateTime lastModifiedTime;
-    private Entitlement entitlement;
-    private Role role;
+    private List<Role> roles;
     private String lastModifiedBy;
     private UserStatus status;
     private String details;

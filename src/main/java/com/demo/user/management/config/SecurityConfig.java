@@ -1,5 +1,6 @@
 package com.demo.user.management.config;
 
+import com.demo.user.management.entity.Role;
 import com.demo.user.management.entity.RoleName;
 import com.demo.user.management.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +33,9 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/**", "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**")
                         .permitAll()
-                        .requestMatchers("/api/v1/admin/**").hasAnyAuthority(RoleName.ADMIN.name())
+                        .requestMatchers("/api/v1/admin/**", "/api/v1/audit/**").hasAnyAuthority(RoleName.ADMIN.name())
                         .requestMatchers("/api/v1/user/**").hasAnyAuthority(RoleName.USER.name())
+                        .requestMatchers("/api/v1/portfolios/**").hasAnyAuthority(RoleName.ADMIN.name(), Role.VIEW_PORTFOLIO.name())
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(headers -> headers.frameOptions().disable()) //h2 issue

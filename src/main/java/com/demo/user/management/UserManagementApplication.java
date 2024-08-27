@@ -1,22 +1,19 @@
 package com.demo.user.management;
 
-import com.demo.user.management.entity.Entitlement;
+import com.demo.user.management.entity.Portfolio;
 import com.demo.user.management.entity.Role;
 import com.demo.user.management.entity.User;
 import com.demo.user.management.entity.UserStatus;
+import com.demo.user.management.repo.PortfolioRepository;
 import com.demo.user.management.repo.UserRepository;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Encoders;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import javax.crypto.SecretKey;
 import java.time.ZonedDateTime;
-import java.util.Optional;
+import java.util.List;
 
 @SpringBootApplication
 public class UserManagementApplication implements CommandLineRunner {
@@ -29,6 +26,9 @@ public class UserManagementApplication implements CommandLineRunner {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private PortfolioRepository portfolioRepository;
+
 	@Override
 	public void run(String... args) throws Exception {
 
@@ -36,12 +36,12 @@ public class UserManagementApplication implements CommandLineRunner {
 		String base64EncodedKey = Encoders.BASE64.encode(key.getEncoded());
 		System.out.println("Base64 Encoded Secret Key: " + base64EncodedKey);*/
 
-		Optional<User> adminUser = userRepository.findByRole(Role.ADMIN);
+		List<User> adminUser = userRepository.findByRoles(Role.ADMIN);
 		if (adminUser.isEmpty()) {
 			User user = new User();
 			user.setName("admin-name");
 			user.setEmail("admin@gmail.com");
-			user.setRole(Role.ADMIN);
+			user.setRoles(List.of(Role.ADMIN));
 			user.setUsername("admin123");
 			user.setPassword(new BCryptPasswordEncoder().encode("admin"));
 			user.setCreatedTime(ZonedDateTime.now());
@@ -52,5 +52,11 @@ public class UserManagementApplication implements CommandLineRunner {
 			userRepository.save(user);
 		}
 
+		Portfolio p1 = new Portfolio("LOAN", 2000.0, "GBP");
+		Portfolio p2 = new Portfolio("INVESTMENT", 12000.0, "USD");
+		Portfolio p3 = new Portfolio("FD", 5000.0, "GBP");
+		portfolioRepository.save(p1);
+		portfolioRepository.save(p2);
+		portfolioRepository.save(p3);
 	}
 }

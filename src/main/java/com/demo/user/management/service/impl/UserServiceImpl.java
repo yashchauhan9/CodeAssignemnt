@@ -1,10 +1,12 @@
 package com.demo.user.management.service.impl;
 
+import com.demo.user.management.dto.RoleRequest;
 import com.demo.user.management.dto.UpdateUserRequest;
 import com.demo.user.management.dto.UserDto;
 import com.demo.user.management.dto.UserNotFoundException;
 import com.demo.user.management.entity.Audit;
 import com.demo.user.management.entity.AuditType;
+import com.demo.user.management.entity.Role;
 import com.demo.user.management.entity.User;
 import com.demo.user.management.entity.UserStatus;
 import com.demo.user.management.mapper.UserMapper;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
+
+import static com.demo.user.management.entity.Role.VIEW_PORTFOLIO;
 
 @Service
 @RequiredArgsConstructor
@@ -117,6 +121,31 @@ public class UserServiceImpl implements UserService {
             auditService.audit(new Audit(AuditType.UPDATE, user.getId(), auditFrom, ObjectMapperUtil.toJsonString(user)));
             return userMapper.userToUserDTO(savedUser);
         }
+        throw new IllegalArgumentException("User not approved");
+    }
+
+    @Override
+    public UserDto assignRole(RoleRequest roleRequest) {
+        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (roleRequest.getRole() != VIEW_PORTFOLIO) {
+            throw new IllegalArgumentException("Cannot assign role: "+ roleRequest.getRole());
+        }
+
+        User user = userRepository.findById(roleRequest.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
+        String auditFrom = ObjectMapperUtil.toJsonString(user);
+        if (user.getStatus() == UserStatus.APPROVED) {
+            List<Role> roles = user.getRoles();
+            roles.add(VIEW_PORTFOLIO);
+            user.setRoles(roles);
+            user.setLastModifiedTime(ZonedDateTime.now());
+            user.setLastModifiedBy(loggedUser.getUsername());
+            user.setDetails(user.getDetails() + " " + roleRequest.getDetails());
+            User savedUser = userRepository.save(user);
+            auditService.audit(new Audit(AuditType.ASSIGN_ROLE, user.getId(), auditFrom, ObjectMapperUtil.toJsonString(user)));
+            return userMapper.userToUserDTO(savedUser);
+        }
+        log.warn("User not approved for assignRole");
         throw new IllegalArgumentException("User not approved");
     }
 

@@ -1,9 +1,9 @@
 package com.demo.user.management.dto;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class RefreshTokenRequest {
-    private String token;
+    @NotNull private String token;
 }

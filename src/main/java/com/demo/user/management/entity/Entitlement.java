@@ -1,3 +1,4 @@
+/*
 package com.demo.user.management.entity;
 
 import jakarta.persistence.*;
@@ -22,3 +23,4 @@ public class Entitlement {
     private String entitlementDetails;
 
 }
+*/
