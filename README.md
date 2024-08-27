@@ -9,19 +9,16 @@
 - JWT Auth with token and ROLE based
 
 ![img.png](img.png)
+![img_1.png](img_1.png)
 
 Admin login details (user added when boot up)
 - username: admin123 
 - password: admin
-- PUT: localhost:8080/api/v1/admin/users/approve/2
-- DELETE: localhost:8080/api/v1/admin/users/2
-- 
 
 Create user:
 - POST : localhost:8080/api/v1/auth/signup
 - POST: localhost:8080/api/v1/auth/signin
 - GET: localhost:8080/api/v1/user/profile
-
 
 Audit:
 - GET: localhost:8080/api/v1/audit/all
@@ -30,4 +27,5 @@ Audit:
 TODO:
 - Test cases
 - Portfolio add/delete
-- Api Gateway for auth? 
+- Api Gateway for auth?
+- High availability and resiliency.
